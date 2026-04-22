@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+
+  # ── Base de données PostgreSQL ──────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: hotel221_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hotel221
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: hotel221pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # données persistantes
+    ports:
+      - "5432:5432"                             # accessible depuis l'hôte
+    networks:
+      - hotel221_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hotel221"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── API FastAPI ─────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hotel221_api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://postgres:hotel221pass@db:5432/hotel221
+      ENV: development
+      PORT: 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app                                  # hot-reload en développement
+    depends_on:
+      db:
+        condition: service_healthy              # attend que PostgreSQL soit prêt
+    networks:
+      - hotel221_network
+
+# ── Volumes persistants ─────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+
+# ── Réseau interne ──────────────────────────────────────────────────────────
+networks:
+  hotel221_network:
+    driver: bridge

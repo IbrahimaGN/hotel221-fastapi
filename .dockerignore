@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Environnements virtuels
+venv/
+.venv/
+env/
+.env/
+
+# Variables d'environnement sensibles
+.env
+.env.docker
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
