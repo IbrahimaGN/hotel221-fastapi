@@ -71,6 +71,8 @@ app.include_router(reservation_router)
 app.include_router(service_router)
 
 
+
+
 #── Route racine ──────────────────────────────────────────────────────────────
 @app.get("/", tags=["Racine"], summary="Page d'accueil de l'API")
 def racine():
