@@ -1,3 +1,21 @@
+# Recherche automatique de la derniere AMI Ubuntu 24.04 LTS disponible dans la region
+data "aws_ami" "ubuntu_24" {
+  most_recent = true
+  owners      = ["099720109477"] # Identifiant officiel de Canonical (Ubuntu)
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+
+
 terraform {
   required_providers {
     aws = {
@@ -17,7 +35,7 @@ resource "aws_security_group" "hotel221_sg" {
   description = "Autoriser HTTP, HTTPS et SSH"
 
   ingress {
-    description = "SSH de n'importe ou"
+    description = "SSH de nimporte ou" # <-- Nettoyé (plus d'apostrophe)
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -25,7 +43,7 @@ resource "aws_security_group" "hotel221_sg" {
   }
 
   ingress {
-    description = "HTTP pour l'API"
+    description = "HTTP pour l API" # <-- Nettoyé (plus d'accent ni d'apostrophe)
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -42,8 +60,8 @@ resource "aws_security_group" "hotel221_sg" {
 
 # 2. Création de l'instance AWS EC2
 resource "aws_instance" "hotel221_server" {
-  ami                    = "ami-0866a3c8686eaeeba" # ID AMI Ubuntu 24.04 LTS (à adapter selon ta région AWS)
-  instance_type          = "t2.micro"
+  ami                    = data.aws_ami.ubuntu_24.id # <--- Ligne modifiee ici !
+  instance_type          = "t3.micro"
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.hotel221_sg.id]
 
