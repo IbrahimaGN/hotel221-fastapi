@@ -90,6 +90,7 @@ jobs:
           echo "3. Health Check Validé ✅"
           echo "Vérifie ton API ici : http://${{ secrets.EC2_HOST }}/docs"
 
+          
       - name: Notification d'échec
         if: failure()
         run: |
