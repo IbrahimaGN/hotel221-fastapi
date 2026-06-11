@@ -1,26 +1,97 @@
-name: CD — Deploy to AWS EC2
+name: CI/CD — Full Pipeline to AWS EC2
 
 on:
-  workflow_run:
-    workflows: ["CI — Build & Push Docker Image"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+      - ci/add-docker-workflow
 
 jobs:
-  deploy:
-    name: Deploy on EC2
+  # --- ETAPE 1 : BUILD ET PUSH SUR DOCKER HUB ---
+  build-and-push:
+    name: Build & Push to Docker Hub
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      image_tag: ${{ steps.vars.outputs.tag }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # On build l'image et on la tag avec "latest"
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel221-fastapi:latest
+
+  # --- ETAPE 2 : CONNEXION SSH & DEPLOIEMENT SUR AWS ---
+  deploy-to-ec2:
+    name: Deploy to AWS EC2 via SSH
+    runs-on: ubuntu-latest
+    needs: build-and-push # S'assure que l'image est bien sur Docker Hub avant de continuer
 
     steps:
-      - name: Deploy to AWS EC2 via Docker
+      - name: Execute SSH commands on AWS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd ~/hotel221-fastapi
-            git pull origin main
+            # 1. Connexion à Docker Hub sur la machine AWS
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            # 2. Pull de la nouvelle image
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/hotel221-fastapi:latest
+
+            # 3. Aller dans le dossier du projet configuré par Terraform
+            cd /home/ubuntu/hotel221-fastapi
+
+            # 4. Arrêter l'ancien conteneur
             docker-compose down
-            docker-compose up --build -d
+
+            # 5. Relancer avec la nouvelle image Docker Hub
+            docker-compose up -d
+
+            # 6. HEALTH CHECK LOCAL SUR AWS
+            echo "Démarrage du Health Check sur le serveur AWS..."
+            SUCCESS=0
+            for i in {1..10}; do
+              # Remplace le port 80 si ton API écoute sur un autre port exposé
+              if curl -s http://localhost/docs > /dev/null; then
+                echo "✅ Le conteneur est en parfaite santé et répond sur /docs !"
+                SUCCESS=1
+                break
+              fi
+              echo "⏳ En attente du démarrage de l'API (essai $i/10)..."
+              sleep 4
+            done
+
+            if [ $SUCCESS -eq 0 ]; then
+              echo "❌ Le Health Check a échoué. L'application ne répond pas."
+              exit 1
+            fi
+
+      # --- ETAPE 3 : NOTIFICATIONS DANS GITHUB ---
+      - name: Notification de succès
+        if: success()
+        run: |
+          echo "🚀 PIPELINE REUSSI AVEC SUCCES !"
+          echo "1. Image poussée sur Docker Hub."
+          echo "2. Serveur AWS EC2 (Stockholm) mis à jour."
+          echo "3. Health Check Validé ✅"
+          echo "Vérifie ton API ici : http://${{ secrets.EC2_HOST }}/docs"
+
+      - name: Notification d'échec
+        if: failure()
+        run: |
+          echo "❌ LE DEPLOIEMENT A ECHOUE !"
+          echo "Regarde les logs SSH ci-dessus pour comprendre l'erreur."
