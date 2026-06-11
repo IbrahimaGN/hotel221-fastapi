@@ -1,0 +1,26 @@
+name: CD — Deploy to AWS EC2
+
+on:
+  workflow_run:
+    workflows: ["CI — Build & Push Docker Image"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Deploy on EC2
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Deploy to AWS EC2 via Docker
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/hotel221-fastapi
+            git pull origin main
+            docker-compose down
+            docker-compose up --build -d
