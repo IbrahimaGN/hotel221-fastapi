@@ -65,14 +65,14 @@ jobs:
             echo "Démarrage du Health Check sur le serveur AWS..."
             SUCCESS=0
             for i in {1..10}; do
-              # Remplace le port 80 si ton API écoute sur un autre port exposé
-              if curl -s http://localhost/docs > /dev/null; then
+            # AJOUT DU PORT 8000 ICI 
+            if curl -s http://localhost:8000/docs > /dev/null; then
                 echo "✅ Le conteneur est en parfaite santé et répond sur /docs !"
                 SUCCESS=1
                 break
-              fi
-              echo "⏳ En attente du démarrage de l'API (essai $i/10)..."
-              sleep 4
+            fi
+            echo "⏳ En attente du démarrage de l'API (essai $i/10)..."
+            sleep 4
             done
 
             if [ $SUCCESS -eq 0 ]; then
