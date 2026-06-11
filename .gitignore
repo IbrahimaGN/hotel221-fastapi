@@ -8,3 +8,8 @@ venv/
 dist/
 *.log
 .alembic/
+# Ignorer Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl

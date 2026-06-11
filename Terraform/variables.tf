@@ -1,5 +1,5 @@
 variable "aws_region" {
-  default     = "eu-west-3" # Remplace par ta région AWS (ex: eu-west-3 pour Paris)
+  default     = "eu-north-1" # Remplace par ta région AWS (ex: eu-west-3 pour Paris)
   type        = string
 }
 
