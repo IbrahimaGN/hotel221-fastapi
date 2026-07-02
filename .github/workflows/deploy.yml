@@ -90,6 +90,7 @@ jobs:
             ✔ EC2 mis à jour
             ✔ Health check validé
 
+            
             🌍 API disponible ici :
             http://${{ secrets.EC2_HOST }}:8000/api-docs
             ou
