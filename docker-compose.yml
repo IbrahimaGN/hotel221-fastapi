@@ -1,9 +1,9 @@
-version: "3.9"
+# version: "3.9"
 
 services:
   web:
       # Au lieu de 'build: .', on utilise l'image Docker Hub
-      image: ton_pseudo_dockerhub/hotel221-fastapi:latest
+      image: ibrahima7505/hotel221-fastapi:latest
       ports:
         - "80:8000" # Adapte les ports selon ton application
       restart: always
