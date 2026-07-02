@@ -9,7 +9,6 @@ class TypeChambre(str, enum.Enum):
     DOUBLE = "DOUBLE"
     SUITE = "SUITE"
 
-
 class StatutChambre(str, enum.Enum):
     LIBRE = "LIBRE"
     OCCUPEE = "OCCUPEE"

@@ -8,7 +8,6 @@ from hotel221.utils.response import send_response
 
 router = APIRouter(prefix="/api/chambres", tags=["Chambres"])
 
-
 @router.get(
     "/",
     summary="Lister toutes les chambres",
