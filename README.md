@@ -57,11 +57,13 @@ docker-compose down -v
 # Shell dans le conteneur API
 docker exec -it hotel221_api sh
 
+
 # psql dans PostgreSQL
 docker exec -it hotel221_db psql -U postgres -d hotel221
 ```
 
 ---
+
 
 ## 🚀 Démarrage sans Docker
 
