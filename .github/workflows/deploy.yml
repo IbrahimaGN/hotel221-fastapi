@@ -91,7 +91,7 @@ jobs:
             ✔ Health check validé
 
             🌍 API disponible ici :
-            http://${{ secrets.EC2_HOST }}/docs
+            https://${{ secrets.EC2_HOST }}/api-docs
 
       # -------------------------------
       # ❌ EMAIL FAIL
