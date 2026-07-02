@@ -71,26 +71,26 @@ app.include_router(reservation_router)
 app.include_router(service_router)
 
 
-#── Route racine ──────────────────────────────────────────────────────────────
-@app.get("/", tags=["Racine"], summary="Page d'accueil de l'API")
-def racine():
-    return {
-        "success": True,
-        "message": "🏨 HOTEL 221 API — Opérationnelle",
-        "version": "1.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "documentation": "/api-docs",
-        "redoc": "/redoc",
-    }
+# #── Route racine ──────────────────────────────────────────────────────────────
+# @app.get("/", tags=["Racine"], summary="Page d'accueil de l'API")
+# def racine():
+#     return {
+#         "success": True,
+#         "message": "🏨 HOTEL 221 API — Opérationnelle",
+#         "version": "1.0.0",
+#         "timestamp": datetime.now(timezone.utc).isoformat(),
+#         "documentation": "/api-docs",
+#         "redoc": "/redoc",
+#     }
 
-@app.get("/health", tags=["Racine"], summary="Health check")
-def health():
-    return {
-        "success": True,
-        "message": "API en bonne santé",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "env": settings.ENV,
-    }
+# @app.get("/health", tags=["Racine"], summary="Health check")
+# def health():
+#     return {
+#         "success": True,
+#         "message": "API en bonne santé",
+#         "timestamp": datetime.now(timezone.utc).isoformat(),
+#         "env": settings.ENV,
+#     }
 
 # ── Démarrage ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
